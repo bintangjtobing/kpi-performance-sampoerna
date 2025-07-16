@@ -5,6 +5,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Report Daily Helper-PMI</title>
+    <!-- SEO META TAGS START -->
+    <meta name="description"
+        content="Report Daily Helper-PMI adalah aplikasi pencatatan laporan harian penjualan untuk sales, memudahkan rekap data bulanan secara cepat dan akurat.">
+    <meta name="keywords"
+        content="daily report sales, aplikasi laporan harian, KPI sales, pencatatan penjualan, sales tools, report helper, sales performance">
+    <meta name="author" content="Bintang Tobing">
+    <link rel="canonical" href="https://kpi-sampoerna.bintangtobing.com/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kpi-sampoerna.bintangtobing.com/">
+    <meta property="og:title" content="Report Daily Helper-PMI - Aplikasi Laporan Harian Sales">
+    <meta property="og:description"
+        content="Bantu sales mencatat laporan harian penjualan dengan mudah. Data terekam rapi, laporan bulanan siap kapan saja.">
+    <meta property="og:site_name" content="Report Daily Helper-PMI">
+    <meta property="og:image" content="https://kpi-sampoerna.bintangtobing.com/images/image-seo.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://kpi-sampoerna.bintangtobing.com/">
+    <meta name="twitter:title" content="Report Daily Helper-PMI - Aplikasi Laporan Harian Sales">
+    <meta name="twitter:description"
+        content="Bantu sales mencatat laporan harian penjualan dengan mudah. Data terekam rapi, laporan bulanan siap kapan saja.">
+    <meta name="twitter:image" content="https://kpi-sampoerna.bintangtobing.com/images/image-seo.png">
+    <!-- SEO META TAGS END -->
+
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
