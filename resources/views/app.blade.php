@@ -236,6 +236,25 @@
                 padding: 12px 16px;
                 cursor: pointer;
             }
+
+            /* Fix mobile header overlap - ensure content doesn't go under header */
+            main {
+                padding-top: 80px !important;
+            }
+
+            /* Adjust mobile menu positioning */
+            .mobile-menu {
+                top: 64px;
+            }
+
+            /* Ensure auth forms have proper spacing from header */
+            [x-show="currentStep === 'name"],
+            [x-show="currentStep === 'password"],
+            [x-show="currentStep === 'register"],
+            [x-show="currentStep === 'email_verification"] {
+                padding-top: 24px !important;
+                margin-top: 0 !important;
+            }
         }
     </style>
 </head>
@@ -342,7 +361,7 @@
             <!-- Page Content -->
             <main class="p-6" :class="currentUser ? 'pt-6' : ''">
                 <!-- User Authentication Step -->
-                <div x-show="currentStep === 'name'" class="flex items-center justify-center min-h-screen px-4 -mt-24">
+                <div x-show="currentStep === 'name'" class="flex items-center justify-center min-h-screen px-4 pt-20 -mt-16">
                     <div class="w-full max-w-md">
                         <div
                             class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-300 hover:scale-105">
@@ -372,7 +391,7 @@
 
                 <!-- Password Step -->
                 <div x-show="currentStep === 'password'"
-                    class="flex items-center justify-center min-h-screen px-4 -mt-24">
+                    class="flex items-center justify-center min-h-screen px-4 pt-20 -mt-16">
                     <div class="w-full max-w-md">
                         <div
                             class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-300 hover:scale-105">
@@ -403,7 +422,7 @@
 
                 <!-- Registration Step -->
                 <div x-show="currentStep === 'register'"
-                    class="flex items-center justify-center min-h-screen px-4 -mt-24">
+                    class="flex items-center justify-center min-h-screen px-4 pt-20 -mt-16">
                     <div class="w-full max-w-md">
                         <div
                             class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-300 hover:scale-105">
@@ -485,7 +504,7 @@
 
                 <!-- Email Verification Step -->
                 <div x-show="currentStep === 'email_verification'"
-                    class="flex items-center justify-center min-h-screen px-4 -mt-24">
+                    class="flex items-center justify-center min-h-screen px-4 pt-20 -mt-16">
                     <div class="w-full max-w-md">
                         <div
                             class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-300 hover:scale-105">
