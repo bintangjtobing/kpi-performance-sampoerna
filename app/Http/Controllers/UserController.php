@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\EmailVerification;
+use App\Mail\EmailVerificationCode;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -38,6 +41,100 @@ class UserController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
+        // Store registration data temporarily in session
+        session([
+            'registration_data' => [
+                'name' => $request->name,
+                'email' => $request->email,
+                'whatsapp' => $request->whatsapp,
+                'password' => bcrypt($request->password),
+            ]
+        ]);
+
+        // Generate and send verification code
+        $verification = EmailVerification::generateCode($request->email);
+        
+        try {
+            Mail::to($request->email)->send(new EmailVerificationCode(
+                $verification->code,
+                $request->name,
+                15 // 15 minutes expiry
+            ));
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim email verifikasi. Silakan coba lagi.'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'step' => 'email_verification',
+            'message' => 'Kode verifikasi telah dikirim ke email Anda.',
+            'email' => $request->email
+        ]);
+    }
+
+    public function sendVerificationCode(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        $registrationData = session('registration_data');
+        if (!$registrationData || $registrationData['email'] !== $request->email) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data registrasi tidak ditemukan. Silakan mulai registrasi dari awal.'
+            ], 400);
+        }
+
+        // Generate new verification code
+        $verification = EmailVerification::generateCode($request->email);
+        
+        try {
+            Mail::to($request->email)->send(new EmailVerificationCode(
+                $verification->code,
+                $registrationData['name'],
+                15
+            ));
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim email verifikasi. Silakan coba lagi.'
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kode verifikasi baru telah dikirim ke email Anda.'
+        ]);
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string|size:6',
+        ]);
+
+        $registrationData = session('registration_data');
+        if (!$registrationData || $registrationData['email'] !== $request->email) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data registrasi tidak ditemukan. Silakan mulai registrasi dari awal.'
+            ], 400);
+        }
+
+        // Verify the code
+        if (!EmailVerification::verifyCode($request->email, $request->code)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode verifikasi tidak valid atau sudah kadaluarsa. Silakan minta kode baru.'
+            ], 400);
+        }
+
+        // Create user after successful verification
         $username = str_replace(['@', '.'], ['_', '_'], explode('@', $request->email)[0]);
         $counter = 1;
         $originalUsername = $username;
@@ -48,17 +145,21 @@ class UserController extends Controller
         }
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name' => $registrationData['name'],
+            'email' => $registrationData['email'],
             'username' => $username,
-            'whatsapp' => $request->whatsapp,
-            'password' => bcrypt($request->password),
+            'whatsapp' => $registrationData['whatsapp'],
+            'password' => $registrationData['password'],
+            'email_verified_at' => now(),
         ]);
+
+        // Clear registration data from session
+        session()->forget('registration_data');
 
         return response()->json([
             'success' => true,
             'user' => $user,
-            'message' => 'User registered successfully'
+            'message' => 'Email berhasil diverifikasi. Akun Anda telah dibuat!'
         ]);
     }
 

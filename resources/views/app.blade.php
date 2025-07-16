@@ -401,6 +401,91 @@
                     </div>
                 </div>
 
+                <!-- Email Verification Step -->
+                <div x-show="currentStep === 'email_verification'"
+                    class="flex items-center justify-center min-h-screen px-4 -mt-24">
+                    <div class="w-full max-w-md">
+                        <div
+                            class="bg-white rounded-xl shadow-lg p-8 transform transition-all duration-300 hover:scale-105">
+                            <div class="text-center mb-8">
+                                <i class="fas fa-envelope-open text-blue-600 text-6xl mb-4"></i>
+                                <h2 class="text-2xl font-bold text-gray-900">Verifikasi Email</h2>
+                                <p class="text-gray-600 mt-2">Masukkan kode verifikasi yang dikirim ke email Anda</p>
+                                <p class="text-sm text-blue-600 mt-2 font-medium" x-text="userEmail"></p>
+                            </div>
+                            
+                            <form @submit.prevent="verifyEmail()">
+                                <div class="mb-6">
+                                    <label class="block text-sm font-medium text-gray-700 mb-4 text-center">Kode Verifikasi</label>
+                                    <div class="flex justify-center space-x-2">
+                                        <input type="text" 
+                                               x-model="verificationCode[0]"
+                                               @input="handleCodeInput($event, 0)"
+                                               @keydown="handleKeyDown($event, 0)"
+                                               @paste="handlePaste($event)"
+                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                               maxlength="1" 
+                                               id="code-0">
+                                        <input type="text" 
+                                               x-model="verificationCode[1]"
+                                               @input="handleCodeInput($event, 1)"
+                                               @keydown="handleKeyDown($event, 1)"
+                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                               maxlength="1" 
+                                               id="code-1">
+                                        <input type="text" 
+                                               x-model="verificationCode[2]"
+                                               @input="handleCodeInput($event, 2)"
+                                               @keydown="handleKeyDown($event, 2)"
+                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                               maxlength="1" 
+                                               id="code-2">
+                                        <input type="text" 
+                                               x-model="verificationCode[3]"
+                                               @input="handleCodeInput($event, 3)"
+                                               @keydown="handleKeyDown($event, 3)"
+                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                               maxlength="1" 
+                                               id="code-3">
+                                        <input type="text" 
+                                               x-model="verificationCode[4]"
+                                               @input="handleCodeInput($event, 4)"
+                                               @keydown="handleKeyDown($event, 4)"
+                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                               maxlength="1" 
+                                               id="code-4">
+                                        <input type="text" 
+                                               x-model="verificationCode[5]"
+                                               @input="handleCodeInput($event, 5)"
+                                               @keydown="handleKeyDown($event, 5)"
+                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                               maxlength="1" 
+                                               id="code-5">
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-3 text-center">Masukkan 6 digit kode verifikasi</p>
+                                </div>
+
+                                <button type="submit" :disabled="loading || !isCodeComplete"
+                                    class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transform transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span x-show="!loading">Verifikasi Email</span>
+                                    <span x-show="loading">
+                                        <i class="fas fa-spinner fa-spin"></i> Memverifikasi...
+                                    </span>
+                                </button>
+                            </form>
+
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-gray-500 mb-3">Tidak menerima kode?</p>
+                                <button @click="resendVerificationCode()" :disabled="loading || resendCooldown > 0"
+                                    class="text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span x-show="resendCooldown === 0">Kirim Ulang Kode</span>
+                                    <span x-show="resendCooldown > 0">Kirim Ulang (<span x-text="resendCooldown"></span>s)</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Dashboard Page -->
                 <div x-show="currentStep === 'progress' && currentPage === 'dashboard'" class="space-y-6">
                     <!-- Progress Check -->
@@ -884,6 +969,11 @@
                 autoSaveStatus: 'saved', // 'saving', 'saved', 'failed'
                 autoSaveMessage: '',
                 autoSaveTimeout: null,
+                
+                // Email verification
+                verificationCode: ['', '', '', '', '', ''],
+                resendCooldown: 0,
+                resendInterval: null,
 
                 // History
                 availableMonths: [],
@@ -1035,11 +1125,25 @@
                         const data = await response.json();
 
                         if (data.success) {
-                            this.currentUser = data.user;
-                            this.currentStep = 'progress';
-                            this.saveSession();
-                            this.checkTodayProgress();
-                            this.loadAutoSavedData();
+                            if (data.step === 'email_verification') {
+                                this.currentStep = 'email_verification';
+                                this.userEmail = data.email;
+                                this.showMessage(data.message, 'success');
+                                
+                                // Auto-focus first input after a brief delay
+                                setTimeout(() => {
+                                    const firstInput = document.getElementById('code-0');
+                                    if (firstInput) {
+                                        firstInput.focus();
+                                    }
+                                }, 100);
+                            } else {
+                                this.currentUser = data.user;
+                                this.currentStep = 'progress';
+                                this.saveSession();
+                                this.checkTodayProgress();
+                                this.loadAutoSavedData();
+                            }
                         } else {
                             alert('Registrasi gagal. Silakan coba lagi.');
                         }
@@ -1380,6 +1484,184 @@
 
                 logout() {
                     this.resetApp();
+                },
+
+                // Email verification computed properties
+                get isCodeComplete() {
+                    return this.verificationCode.every(digit => digit.trim() !== '');
+                },
+
+                // Email verification methods
+                handleCodeInput(event, index) {
+                    const value = event.target.value;
+                    
+                    // Only allow numbers
+                    if (!/^\d*$/.test(value)) {
+                        event.target.value = '';
+                        this.verificationCode[index] = '';
+                        return;
+                    }
+                    
+                    this.verificationCode[index] = value;
+                    
+                    // Auto-focus next input
+                    if (value && index < 5) {
+                        const nextInput = document.getElementById(`code-${index + 1}`);
+                        if (nextInput) {
+                            nextInput.focus();
+                        }
+                    }
+                    
+                    // Auto-submit when complete
+                    if (this.isCodeComplete) {
+                        setTimeout(() => {
+                            this.verifyEmail();
+                        }, 100);
+                    }
+                },
+
+                handleKeyDown(event, index) {
+                    // Handle backspace
+                    if (event.key === 'Backspace' && !this.verificationCode[index] && index > 0) {
+                        const prevInput = document.getElementById(`code-${index - 1}`);
+                        if (prevInput) {
+                            prevInput.focus();
+                        }
+                    }
+                    
+                    // Handle arrow keys
+                    if (event.key === 'ArrowLeft' && index > 0) {
+                        const prevInput = document.getElementById(`code-${index - 1}`);
+                        if (prevInput) {
+                            prevInput.focus();
+                        }
+                    }
+                    
+                    if (event.key === 'ArrowRight' && index < 5) {
+                        const nextInput = document.getElementById(`code-${index + 1}`);
+                        if (nextInput) {
+                            nextInput.focus();
+                        }
+                    }
+                },
+
+                handlePaste(event) {
+                    event.preventDefault();
+                    const pastedData = event.clipboardData.getData('text');
+                    
+                    // Only process if pasted data is exactly 6 digits
+                    if (/^\d{6}$/.test(pastedData)) {
+                        const digits = pastedData.split('');
+                        this.verificationCode = digits;
+                        
+                        // Focus the last input
+                        const lastInput = document.getElementById('code-5');
+                        if (lastInput) {
+                            lastInput.focus();
+                        }
+                        
+                        // Auto-submit
+                        setTimeout(() => {
+                            this.verifyEmail();
+                        }, 100);
+                    }
+                },
+
+                async verifyEmail() {
+                    if (!this.isCodeComplete) return;
+                    
+                    this.loading = true;
+                    try {
+                        const code = this.verificationCode.join('');
+                        
+                        const response = await fetch('/api/verify-email', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                email: this.userEmail,
+                                code: code
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            this.currentUser = data.user;
+                            this.currentStep = 'progress';
+                            this.saveSession();
+                            this.checkTodayProgress();
+                            this.loadAutoSavedData();
+                            this.showMessage(data.message, 'success');
+                        } else {
+                            this.showMessage(data.message, 'error');
+                            // Clear code inputs on error
+                            this.verificationCode = ['', '', '', '', '', ''];
+                            document.getElementById('code-0').focus();
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        this.showMessage('Terjadi kesalahan. Silakan coba lagi.', 'error');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async resendVerificationCode() {
+                    if (this.resendCooldown > 0) return;
+                    
+                    this.loading = true;
+                    try {
+                        const response = await fetch('/api/send-verification-code', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            },
+                            body: JSON.stringify({
+                                email: this.userEmail
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            this.showMessage(data.message, 'success');
+                            this.startResendCooldown();
+                        } else {
+                            this.showMessage(data.message, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        this.showMessage('Terjadi kesalahan. Silakan coba lagi.', 'error');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                startResendCooldown() {
+                    this.resendCooldown = 60; // 60 seconds cooldown
+                    this.resendInterval = setInterval(() => {
+                        this.resendCooldown--;
+                        if (this.resendCooldown <= 0) {
+                            clearInterval(this.resendInterval);
+                            this.resendInterval = null;
+                        }
+                    }, 1000);
+                },
+
+                showMessage(message, type) {
+                    // You can implement a toast notification system here
+                    if (type === 'success') {
+                        // Show success message
+                        console.log('Success:', message);
+                    } else {
+                        // Show error message
+                        console.error('Error:', message);
+                        alert(message);
+                    }
                 }
             }
         }

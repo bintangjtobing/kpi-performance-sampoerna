@@ -25,6 +25,8 @@ Route::get('/', function () {
 
 Route::post('/api/check-user', [UserController::class, 'checkUser']);
 Route::post('/api/register', [UserController::class, 'register']);
+Route::post('/api/send-verification-code', [UserController::class, 'sendVerificationCode']);
+Route::post('/api/verify-email', [UserController::class, 'verifyEmail']);
 Route::post('/api/login', [UserController::class, 'login']);
 
 Route::get('/api/progress-items', [ProgressController::class, 'getProgressItems']);
