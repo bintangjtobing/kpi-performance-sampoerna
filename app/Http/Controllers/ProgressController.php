@@ -8,6 +8,10 @@ use App\Models\ProgressItem;
 use App\Models\Target;
 use App\Models\User;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use App\Mail\DailyProgressSubmitted;
+use Illuminate\Support\Facades\Mail;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class ProgressController extends Controller
 {
@@ -170,6 +174,22 @@ class ProgressController extends Controller
 
         $message = $this->generateFeedbackMessage($user->name, $overallPercentage);
 
+        // Generate PDF and send email
+        try {
+            $pdfPath = $this->generateDailyReportPDF($user, $dailyProgress);
+            
+            // Send email with PDF attachment
+            Mail::to($user->email)->send(new DailyProgressSubmitted($user, $dailyProgress, $overallPercentage, $message, $pdfPath));
+            
+            // Clean up temporary PDF file
+            if ($pdfPath && file_exists($pdfPath)) {
+                unlink($pdfPath);
+            }
+        } catch (\Exception $e) {
+            // Log error but don't fail the request
+            error_log("Email sending failed: " . $e->getMessage());
+        }
+
         return response()->json([
             'success' => true,
             'overall_percentage' => $overallPercentage,
@@ -203,6 +223,115 @@ class ProgressController extends Controller
         }
 
         return $messages[array_rand($messages)];
+    }
+
+    private function generateDailyReportPDF($user, $dailyProgress)
+    {
+        // Group progress items by category
+        $groupedItems = $dailyProgress->progressItems->groupBy(function($item) {
+            return $this->getCategoryName($item->item_name);
+        });
+
+        // Download photos temporarily
+        $tempPhotos = [];
+        $localPhotos = [];
+        if ($dailyProgress->photos && count($dailyProgress->photos) > 0) {
+            $tempPhotos = $this->downloadPhotosTemporarily($dailyProgress->photos);
+            $localPhotos = $tempPhotos;
+        }
+
+        $data = [
+            'user' => $user,
+            'progress' => $dailyProgress,
+            'grouped_items' => $groupedItems,
+            'date' => $dailyProgress->progress_date ? \Carbon\Carbon::parse($dailyProgress->progress_date)->format('d F Y') : now()->format('d F Y'),
+            'photos' => $localPhotos
+        ];
+
+        try {
+            $pdf = Pdf::loadView('reports.daily', $data);
+            
+            // Save PDF to temporary file
+            $filename = 'Daily_Report_' . $user->name . '_' . now()->format('Y-m-d_H-i-s') . '.pdf';
+            $pdfPath = storage_path('app/temp/' . $filename);
+            
+            // Ensure temp directory exists
+            if (!file_exists(storage_path('app/temp'))) {
+                mkdir(storage_path('app/temp'), 0755, true);
+            }
+            
+            // Save PDF to file
+            file_put_contents($pdfPath, $pdf->output());
+            
+            // Cleanup temporary photos
+            if (!empty($tempPhotos)) {
+                $this->cleanupTempPhotos($tempPhotos);
+            }
+            
+            return $pdfPath;
+        } catch (\Exception $e) {
+            // Cleanup on error
+            if (!empty($tempPhotos)) {
+                $this->cleanupTempPhotos($tempPhotos);
+            }
+            throw $e;
+        }
+    }
+
+    private function getCategoryName($itemName)
+    {
+        // Define category mappings
+        $categoryMapping = [
+            'Plan Visit' => 'Visit',
+            'Actual Visit' => 'Visit',
+            'OOR Outlet' => 'Visit',
+            'Plan SO' => 'Sales Order',
+            'Actual SO' => 'Sales Order',
+            'SSKU' => 'Sales Order',
+            'Plan Display' => 'Display',
+            'Actual Display' => 'Display',
+            'OOS' => 'Display',
+            'Plan Sampling' => 'Sampling',
+            'Actual Sampling' => 'Sampling',
+            'Plan Collection' => 'Collection',
+            'Actual Collection' => 'Collection',
+            'Plan Kompetitor' => 'Competitor',
+            'Actual Kompetitor' => 'Competitor',
+            'Plan Ekspansi' => 'Expansion',
+            'Actual Ekspansi' => 'Expansion',
+            'Plan Reactivation' => 'Reactivation',
+            'Actual Reactivation' => 'Reactivation',
+            'Plan Coaching' => 'Coaching',
+            'Actual Coaching' => 'Coaching',
+        ];
+
+        return $categoryMapping[$itemName] ?? 'Other';
+    }
+
+    private function downloadPhotosTemporarily($photos)
+    {
+        $tempPhotos = [];
+        foreach ($photos as $photo) {
+            try {
+                $tempPath = storage_path('app/temp/' . basename($photo));
+                $content = file_get_contents($photo);
+                file_put_contents($tempPath, $content);
+                $tempPhotos[] = $tempPath;
+            } catch (\Exception $e) {
+                // Skip failed photos
+                continue;
+            }
+        }
+        return $tempPhotos;
+    }
+
+    private function cleanupTempPhotos($tempPhotos)
+    {
+        foreach ($tempPhotos as $tempPhoto) {
+            if (file_exists($tempPhoto)) {
+                unlink($tempPhoto);
+            }
+        }
     }
 
     public function getTodayProgress(Request $request)

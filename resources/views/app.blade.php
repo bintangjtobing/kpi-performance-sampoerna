@@ -58,28 +58,105 @@
             border-left: 4px solid #ffffff;
         }
 
-        .sidebar {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
+        [x-cloak] {
+            display: none !important;
         }
 
-        .sidebar.open {
-            transform: translateX(0);
+
+        /* Logo Styles */
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 18px;
+            color: white;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+            transition: all 0.3s ease;
+            flex-shrink: 0;
         }
 
-        .sidebar-overlay {
+        .logo:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+        }
+
+        .logo-text {
+            margin-left: 16px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            white-space: nowrap;
+        }
+
+        /* Mobile hamburger menu */
+        .mobile-menu {
+            position: fixed;
+            top: 64px;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        .mobile-menu.open {
+            max-height: 400px;
+        }
+
+        .hamburger {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            width: 24px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .hamburger span {
+            display: block;
+            height: 2px;
+            width: 100%;
+            background-color: #374151;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
             opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease-in-out;
         }
 
-        .sidebar-overlay.open {
-            opacity: 1;
-            pointer-events: auto;
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
         }
 
         /* Mobile touch improvements */
         @media (max-width: 768px) {
+            .logo {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+                border-radius: 10px;
+            }
+
+            .logo-text {
+                font-size: 16px;
+                margin-left: 12px;
+            }
+
+            .desktop-nav {
+                display: none;
+            }
 
             input,
             button,
@@ -120,143 +197,93 @@
 
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <div id="app" x-data="kpiApp()" x-init="init()">
-        <!-- Sidebar -->
-        <div class="fixed inset-0 z-50 lg:hidden">
-            <div class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50" :class="{'open': sidebarOpen}"
-                @click="sidebarOpen = false"></div>
-            <div class="sidebar fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-50" :class="{'open': sidebarOpen}">
-                <div class="p-4 border-b">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-lg font-semibold text-gray-900">Menu</h2>
-                        <button @click="sidebarOpen = false" class="text-gray-500 hover:text-gray-700">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-                <nav class="p-4 space-y-2">
-                    <a href="#" @click="currentPage = 'dashboard'; sidebarOpen = false"
-                        class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
-                        :class="{'bg-blue-100 text-blue-700': currentPage === 'dashboard'}">
-                        <i class="fas fa-tachometer-alt mr-3"></i>
-                        Dashboard
-                    </a>
-                    <a href="#" @click="currentPage = 'history'; sidebarOpen = false; loadHistory()"
-                        class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
-                        :class="{'bg-blue-100 text-blue-700': currentPage === 'history'}">
-                        <i class="fas fa-history mr-3"></i>
-                        History
-                    </a>
-                    <a href="#" @click="currentPage = 'reports'; sidebarOpen = false; loadReports()"
-                        class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
-                        :class="{'bg-blue-100 text-blue-700': currentPage === 'reports'}">
-                        <i class="fas fa-chart-bar mr-3"></i>
-                        Reports
-                    </a>
-                    <a href="#" @click="currentPage = 'admin'; sidebarOpen = false; loadAdmin()"
-                        x-show="currentUser?.is_admin"
-                        class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
-                        :class="{'bg-blue-100 text-blue-700': currentPage === 'admin'}">
-                        <i class="fas fa-users-cog mr-3"></i>
-                        Admin Panel
-                    </a>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Desktop Sidebar -->
-        <div
-            class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:w-64 lg:overflow-y-auto lg:bg-white lg:border-r lg:border-gray-200">
-            <div class="flex flex-col h-full">
-                <div class="flex items-center justify-center h-16 bg-blue-600">
-                    <i class="fas fa-chart-line text-white text-2xl mr-3"></i>
-                    <h1 class="text-white text-lg font-bold">KPI Sampoerna</h1>
-                </div>
-                <nav class="flex-1 px-4 py-4 space-y-2">
-                    <a href="#" @click="currentPage = 'dashboard'"
-                        class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
-                        :class="{'bg-blue-100 text-blue-700': currentPage === 'dashboard'}">
-                        <i class="fas fa-tachometer-alt mr-3"></i>
-                        Dashboard
-                    </a>
-                    <a href="#" @click="currentPage = 'history'; loadHistory()"
-                        class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
-                        :class="{'bg-blue-100 text-blue-700': currentPage === 'history'}">
-                        <i class="fas fa-history mr-3"></i>
-                        History
-                    </a>
-                    <a href="#" @click="currentPage = 'reports'; loadReports()"
-                        class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
-                        :class="{'bg-blue-100 text-blue-700': currentPage === 'reports'}">
-                        <i class="fas fa-chart-bar mr-3"></i>
-                        Reports
-                    </a>
-                    <a href="#" @click="currentPage = 'admin'; loadAdmin()" x-show="currentUser?.is_admin"
-                        class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-gray-100"
-                        :class="{'bg-blue-100 text-blue-700': currentPage === 'admin'}">
-                        <i class="fas fa-users-cog mr-3"></i>
-                        Admin Panel
-                    </a>
-                </nav>
-                <div class="border-t p-4">
-                    <div class="flex items-center" x-show="currentUser">
-                        <div class="flex-1">
-                            <p class="text-sm font-medium text-gray-900" x-text="currentUser?.name"></p>
-                            <p class="text-xs text-gray-500" x-text="currentUser?.email"></p>
-                        </div>
-                        <button @click="logout()" class="text-red-600 hover:text-red-800">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <!-- Main Content -->
-        <div class="lg:ml-64">
+        <div>
             <!-- Header -->
-            <header class="bg-white shadow-lg" x-show="currentUser">
+            <header class="bg-white shadow-lg" x-show="currentUser || true" x-cloak>
                 <div class="px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between items-center h-16">
                         <div class="flex items-center">
-                            <button @click="sidebarOpen = true"
-                                class="text-gray-500 hover:text-gray-700 mr-3 lg:hidden">
-                                <i class="fas fa-bars"></i>
-                            </button>
-                            <h1 class="text-xl font-bold text-gray-900 lg:hidden">Performance Sampoerna KPI</h1>
-                            <h1 class="text-xl font-bold text-gray-900 hidden lg:block"
-                                x-text="currentPage === 'dashboard' ? 'Dashboard' : currentPage === 'history' ? 'History' : currentPage === 'reports' ? 'Reports' : currentPage === 'admin' ? 'Admin Panel' : 'Dashboard'">
-                            </h1>
+                            <div class="logo">PSK</div>
+                            <span class="logo-text hidden sm:block">Performance Sampoerna KPI</span>
                         </div>
-                        <div class="flex items-center space-x-4">
-                            <!-- Desktop Menu -->
-                            <div class="hidden lg:flex items-center space-x-4">
+                        
+                        <!-- Desktop Navigation -->
+                        <div class="hidden md:flex items-center space-x-6">
+                            <div class="flex items-center space-x-4">
                                 <button @click="currentPage = 'dashboard'"
-                                    :class="currentPage === 'dashboard' ? 'text-blue-600' : 'text-gray-600 hover:text-gray-800'"
-                                    class="px-3 py-2 text-sm font-medium">
+                                    :class="currentPage === 'dashboard' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-800'"
+                                    class="px-3 py-2 text-sm font-medium transition-colors">
                                     Dashboard
                                 </button>
                                 <button @click="currentPage = 'history'; loadHistory()"
-                                    :class="currentPage === 'history' ? 'text-blue-600' : 'text-gray-600 hover:text-gray-800'"
-                                    class="px-3 py-2 text-sm font-medium">
+                                    :class="currentPage === 'history' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-800'"
+                                    class="px-3 py-2 text-sm font-medium transition-colors">
                                     History
                                 </button>
                                 <button @click="currentPage = 'reports'; loadReports()"
-                                    :class="currentPage === 'reports' ? 'text-blue-600' : 'text-gray-600 hover:text-gray-800'"
-                                    class="px-3 py-2 text-sm font-medium">
+                                    :class="currentPage === 'reports' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-800'"
+                                    class="px-3 py-2 text-sm font-medium transition-colors">
                                     Reports
                                 </button>
                                 <button @click="currentPage = 'admin'; loadAdmin()" x-show="currentUser?.is_admin"
-                                    :class="currentPage === 'admin' ? 'text-blue-600' : 'text-gray-600 hover:text-gray-800'"
-                                    class="px-3 py-2 text-sm font-medium">
+                                    :class="currentPage === 'admin' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-600 hover:text-gray-800'"
+                                    class="px-3 py-2 text-sm font-medium transition-colors">
                                     Admin
                                 </button>
                             </div>
+                            <div class="flex items-center space-x-4">
+                                <span class="text-sm text-gray-600">Welcome, <span x-text="currentUser?.name"></span></span>
+                                <button @click="logout()" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                </button>
+                            </div>
+                        </div>
 
-                            <span class="text-sm text-gray-600 hidden sm:block">Welcome, <span
-                                    x-text="currentUser?.name"></span></span>
-                            <button @click="logout()" class="text-red-600 hover:text-red-800 p-2">
+                        <!-- Mobile Navigation -->
+                        <div class="md:hidden flex items-center space-x-2">
+                            <button @click="logout()" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors">
                                 <i class="fas fa-sign-out-alt"></i>
                             </button>
+                            <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2">
+                                <div class="hamburger" :class="{'active': mobileMenuOpen}">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Menu Dropdown -->
+                <div class="md:hidden mobile-menu bg-white border-t border-gray-200 shadow-lg" :class="{'open': mobileMenuOpen}">
+                    <div class="px-4 py-2 space-y-1">
+                        <button @click="currentPage = 'dashboard'; mobileMenuOpen = false"
+                            :class="currentPage === 'dashboard' ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600' : 'text-gray-700 hover:bg-gray-50'"
+                            class="w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors">
+                            <i class="fas fa-tachometer-alt mr-3"></i>Dashboard
+                        </button>
+                        <button @click="currentPage = 'history'; loadHistory(); mobileMenuOpen = false"
+                            :class="currentPage === 'history' ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600' : 'text-gray-700 hover:bg-gray-50'"
+                            class="w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors">
+                            <i class="fas fa-history mr-3"></i>History
+                        </button>
+                        <button @click="currentPage = 'reports'; loadReports(); mobileMenuOpen = false"
+                            :class="currentPage === 'reports' ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600' : 'text-gray-700 hover:bg-gray-50'"
+                            class="w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors">
+                            <i class="fas fa-chart-bar mr-3"></i>Reports
+                        </button>
+                        <button @click="currentPage = 'admin'; loadAdmin(); mobileMenuOpen = false" x-show="currentUser?.is_admin"
+                            :class="currentPage === 'admin' ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600' : 'text-gray-700 hover:bg-gray-50'"
+                            class="w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors">
+                            <i class="fas fa-users-cog mr-3"></i>Admin Panel
+                        </button>
+                        <div class="border-t border-gray-200 pt-2 mt-2">
+                            <div class="px-4 py-2 text-sm text-gray-600">
+                                Welcome, <span x-text="currentUser?.name"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -840,8 +867,8 @@
             return {
                 currentStep: 'name',
                 currentPage: 'dashboard',
-                sidebarOpen: false,
                 loading: false,
+                mobileMenuOpen: false,
                 userName: '',
                 userEmail: '',
                 userWhatsapp: '',
@@ -1348,7 +1375,6 @@
                     this.todayProgress = false;
                     this.overallPercentage = 0;
                     this.resultMessage = '';
-                    this.sidebarOpen = false;
                     this.clearSession();
                 },
 
