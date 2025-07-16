@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Performance Sampoerna KPI</title>
+    <title>Report Daily Helper-PMI</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -12,7 +12,8 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript" onerror="console.error('Failed to load Cloudinary script')"></script>
+    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"
+        onerror="console.error('Failed to load Cloudinary script')"></script>
     <style>
         .calendar-grid {
             display: grid;
@@ -220,10 +221,10 @@
                 <div class="px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between items-center h-16">
                         <div class="flex items-center">
-                            <div class="logo">PSK</div>
-                            <span class="logo-text hidden sm:block">Performance Sampoerna KPI</span>
+                            <div class="logo">RDH</div>
+                            <span class="logo-text hidden sm:block">Report Daily Helper-PMI</span>
                         </div>
-                        
+
                         <!-- Desktop Navigation -->
                         <div class="hidden md:flex items-center space-x-6">
                             <div class="flex items-center space-x-4">
@@ -249,8 +250,10 @@
                                 </button>
                             </div>
                             <div class="flex items-center space-x-4">
-                                <span class="text-sm text-gray-600">Welcome, <span x-text="currentUser?.name"></span></span>
-                                <button @click="logout()" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                                <span class="text-sm text-gray-600">Welcome, <span
+                                        x-text="currentUser?.name"></span></span>
+                                <button @click="logout()"
+                                    class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors">
                                     <i class="fas fa-sign-out-alt"></i>
                                 </button>
                             </div>
@@ -258,7 +261,8 @@
 
                         <!-- Mobile Navigation -->
                         <div class="md:hidden flex items-center space-x-2">
-                            <button @click="logout()" class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors">
+                            <button @click="logout()"
+                                class="text-red-600 hover:text-red-800 p-2 rounded-lg hover:bg-red-50 transition-colors">
                                 <i class="fas fa-sign-out-alt"></i>
                             </button>
                             <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2">
@@ -271,9 +275,10 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Mobile Menu Dropdown -->
-                <div class="md:hidden mobile-menu bg-white border-t border-gray-200 shadow-lg" :class="{'open': mobileMenuOpen}">
+                <div class="md:hidden mobile-menu bg-white border-t border-gray-200 shadow-lg"
+                    :class="{'open': mobileMenuOpen}">
                     <div class="px-4 py-2 space-y-1">
                         <button @click="currentPage = 'dashboard'; mobileMenuOpen = false"
                             :class="currentPage === 'dashboard' ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600' : 'text-gray-700 hover:bg-gray-50'"
@@ -290,7 +295,8 @@
                             class="w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors">
                             <i class="fas fa-chart-bar mr-3"></i>Reports
                         </button>
-                        <button @click="currentPage = 'admin'; loadAdmin(); mobileMenuOpen = false" x-show="currentUser?.is_admin"
+                        <button @click="currentPage = 'admin'; loadAdmin(); mobileMenuOpen = false"
+                            x-show="currentUser?.is_admin"
                             :class="currentPage === 'admin' ? 'bg-blue-50 text-blue-600 border-l-4 border-blue-600' : 'text-gray-700 hover:bg-gray-50'"
                             class="w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors">
                             <i class="fas fa-users-cog mr-3"></i>Admin Panel
@@ -404,7 +410,7 @@
                                         placeholder="Masukkan password" required>
                                     <p class="text-xs text-gray-500 mt-1">Minimal 6 karakter</p>
                                 </div>
-                                
+
                                 <!-- Warning dan Agreement -->
                                 <div class="mb-6">
                                     <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
@@ -413,22 +419,29 @@
                                             <div class="text-sm text-yellow-800">
                                                 <p class="font-medium mb-2">Perhatian Penting!</p>
                                                 <ul class="space-y-1 text-xs">
-                                                    <li>• <strong>Email:</strong> Pastikan email yang Anda masukkan <strong>benar dan aktif</strong>, karena akan digunakan untuk verifikasi akun dan menerima laporan harian.</li>
-                                                    <li>• <strong>WhatsApp:</strong> Pastikan nomor WhatsApp yang Anda masukkan <strong>benar dan aktif</strong>, karena akan digunakan untuk informasi penting ke nomor tersebut.</li>
+                                                    <li>• <strong>Email:</strong> Pastikan email yang Anda masukkan
+                                                        <strong>benar dan aktif</strong>, karena akan digunakan untuk
+                                                        verifikasi akun dan menerima laporan harian.
+                                                    </li>
+                                                    <li>• <strong>WhatsApp:</strong> Pastikan nomor WhatsApp yang Anda
+                                                        masukkan <strong>benar dan aktif</strong>, karena akan digunakan
+                                                        untuk informasi penting ke nomor tersebut.</li>
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="flex items-start">
                                         <input type="checkbox" id="dataAccuracy" x-model="agreedToDataAccuracy"
                                             class="mt-1 mr-3 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
                                         <label for="dataAccuracy" class="text-sm text-gray-700 cursor-pointer">
-                                            Saya telah <strong>memeriksa dan memastikan</strong> bahwa email dan nomor WhatsApp yang saya masukkan adalah <strong>benar dan aktif</strong>. Saya memahami bahwa data ini akan digunakan untuk komunikasi penting.
+                                            Saya telah <strong>memeriksa dan memastikan</strong> bahwa email dan nomor
+                                            WhatsApp yang saya masukkan adalah <strong>benar dan aktif</strong>. Saya
+                                            memahami bahwa data ini akan digunakan untuk komunikasi penting.
                                         </label>
                                     </div>
                                 </div>
-                                
+
                                 <button type="submit" :disabled="loading || !agreedToDataAccuracy"
                                     class="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transform transition-all duration-200 hover:scale-105 disabled:opacity-50">
                                     <span x-show="!loading">Daftar</span>
@@ -450,59 +463,44 @@
                             <div class="text-center mb-8">
                                 <i class="fas fa-envelope-open text-blue-600 text-6xl mb-4"></i>
                                 <h2 class="text-2xl font-bold text-gray-900">Verifikasi Email</h2>
-                                <p class="text-gray-600 mt-2">Masukkan kode verifikasi yang dikirim ke email dan WhatsApp Anda</p>
+                                <p class="text-gray-600 mt-2">Masukkan kode verifikasi yang dikirim ke email dan
+                                    WhatsApp Anda</p>
                                 <p class="text-sm text-blue-600 mt-2 font-medium" x-text="userEmail"></p>
                             </div>
-                            
+
                             <form @submit.prevent="verifyEmail()">
                                 <div class="mb-6">
-                                    <label class="block text-sm font-medium text-gray-700 mb-4 text-center">Kode Verifikasi</label>
+                                    <label class="block text-sm font-medium text-gray-700 mb-4 text-center">Kode
+                                        Verifikasi</label>
                                     <div class="flex justify-center space-x-2">
-                                        <input type="text" 
-                                               x-model="verificationCode[0]"
-                                               @input="handleCodeInput($event, 0)"
-                                               @keydown="handleKeyDown($event, 0)"
-                                               @paste="handlePaste($event)"
-                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                               maxlength="1" 
-                                               id="code-0">
-                                        <input type="text" 
-                                               x-model="verificationCode[1]"
-                                               @input="handleCodeInput($event, 1)"
-                                               @keydown="handleKeyDown($event, 1)"
-                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                               maxlength="1" 
-                                               id="code-1">
-                                        <input type="text" 
-                                               x-model="verificationCode[2]"
-                                               @input="handleCodeInput($event, 2)"
-                                               @keydown="handleKeyDown($event, 2)"
-                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                               maxlength="1" 
-                                               id="code-2">
-                                        <input type="text" 
-                                               x-model="verificationCode[3]"
-                                               @input="handleCodeInput($event, 3)"
-                                               @keydown="handleKeyDown($event, 3)"
-                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                               maxlength="1" 
-                                               id="code-3">
-                                        <input type="text" 
-                                               x-model="verificationCode[4]"
-                                               @input="handleCodeInput($event, 4)"
-                                               @keydown="handleKeyDown($event, 4)"
-                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                               maxlength="1" 
-                                               id="code-4">
-                                        <input type="text" 
-                                               x-model="verificationCode[5]"
-                                               @input="handleCodeInput($event, 5)"
-                                               @keydown="handleKeyDown($event, 5)"
-                                               class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
-                                               maxlength="1" 
-                                               id="code-5">
+                                        <input type="text" x-model="verificationCode[0]"
+                                            @input="handleCodeInput($event, 0)" @keydown="handleKeyDown($event, 0)"
+                                            @paste="handlePaste($event)"
+                                            class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                            maxlength="1" id="code-0">
+                                        <input type="text" x-model="verificationCode[1]"
+                                            @input="handleCodeInput($event, 1)" @keydown="handleKeyDown($event, 1)"
+                                            class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                            maxlength="1" id="code-1">
+                                        <input type="text" x-model="verificationCode[2]"
+                                            @input="handleCodeInput($event, 2)" @keydown="handleKeyDown($event, 2)"
+                                            class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                            maxlength="1" id="code-2">
+                                        <input type="text" x-model="verificationCode[3]"
+                                            @input="handleCodeInput($event, 3)" @keydown="handleKeyDown($event, 3)"
+                                            class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                            maxlength="1" id="code-3">
+                                        <input type="text" x-model="verificationCode[4]"
+                                            @input="handleCodeInput($event, 4)" @keydown="handleKeyDown($event, 4)"
+                                            class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                            maxlength="1" id="code-4">
+                                        <input type="text" x-model="verificationCode[5]"
+                                            @input="handleCodeInput($event, 5)" @keydown="handleKeyDown($event, 5)"
+                                            class="w-12 h-12 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+                                            maxlength="1" id="code-5">
                                     </div>
-                                    <p class="text-xs text-gray-500 mt-3 text-center">Masukkan 6 digit kode verifikasi yang dikirim ke email dan WhatsApp Anda</p>
+                                    <p class="text-xs text-gray-500 mt-3 text-center">Masukkan 6 digit kode verifikasi
+                                        yang dikirim ke email dan WhatsApp Anda</p>
                                 </div>
 
                                 <button type="submit" :disabled="loading || !isCodeComplete"
@@ -519,7 +517,8 @@
                                 <button @click="resendVerificationCode()" :disabled="loading || resendCooldown > 0"
                                     class="text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
                                     <span x-show="resendCooldown === 0">Kirim Ulang Kode</span>
-                                    <span x-show="resendCooldown > 0">Kirim Ulang (<span x-text="resendCooldown"></span>s)</span>
+                                    <span x-show="resendCooldown > 0">Kirim Ulang (<span
+                                            x-text="resendCooldown"></span>s)</span>
                                 </button>
                             </div>
                         </div>
@@ -529,7 +528,8 @@
                 <!-- Dashboard Page -->
                 <div x-show="currentStep === 'progress' && currentPage === 'dashboard'" class="space-y-6">
                     <!-- Progress Check -->
-                    <div x-show="todayProgress && submissionMode !== 'backdate'" class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                    <div x-show="todayProgress && submissionMode !== 'backdate'"
+                        class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
                         <div class="flex items-center">
                             <i class="fas fa-check-circle text-yellow-600 text-xl mr-3"></i>
                             <div>
@@ -572,20 +572,22 @@
                             </div>
 
                             <!-- Backdate Submission Indicator -->
-                            <div x-show="submissionMode === 'backdate'" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <div x-show="submissionMode === 'backdate'"
+                                class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center">
                                         <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
                                         <div>
                                             <p class="text-sm font-medium text-blue-900">Mode Input Tanggal Mundur</p>
                                             <p class="text-xs text-blue-700">
-                                                Laporan akan diinput untuk tanggal: 
-                                                <span class="font-semibold" x-text="selectedDateForSubmission ? new Date(selectedDateForSubmission).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : ''"></span>
+                                                Laporan akan diinput untuk tanggal:
+                                                <span class="font-semibold"
+                                                    x-text="selectedDateForSubmission ? new Date(selectedDateForSubmission).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : ''"></span>
                                             </p>
                                         </div>
                                     </div>
-                                    <button type="button" @click="cancelBackdateSubmission()" 
-                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    <button type="button" @click="cancelBackdateSubmission()"
+                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         <i class="fas fa-times mr-1"></i>
                                         Batal
                                     </button>
@@ -704,22 +706,20 @@
                             <!-- Calendar Grid -->
                             <div class="calendar-grid rounded-lg overflow-hidden">
                                 <template x-for="(day, date) in calendarData" :key="date">
-                                    <div class="calendar-day"
-                                        :class="{
-                                            'has-progress': day.has_progress, 
+                                    <div class="calendar-day" :class="{
+                                            'has-progress': day.has_progress,
                                             'selected': selectedDate === date,
                                             'submittable': !day.has_progress && new Date(date) <= new Date(),
                                             'future': new Date(date) > new Date()
-                                        }"
-                                        @click="selectDate(date, day)">
+                                        }" @click="selectDate(date, day)">
                                         <div class="text-sm font-medium" x-text="day.date"></div>
                                         <div x-show="day.has_progress" class="text-xs text-blue-200 mt-1"
                                             x-text="Math.round(day.percentage) + '%'"></div>
-                                        
+
                                         <!-- Submit Button for dates without progress -->
                                         <div x-show="!day.has_progress && new Date(date) <= new Date()" class="mt-1">
-                                            <button @click.stop="selectDateForSubmission(date)" 
-                                                    class="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-colors">
+                                            <button @click.stop="selectDateForSubmission(date)"
+                                                class="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-colors">
                                                 Input
                                             </button>
                                         </div>
@@ -1006,7 +1006,8 @@
                         <div class="bg-blue-50 rounded-lg p-4 mb-6">
                             <p class="text-gray-700" x-text="resultMessage"></p>
                         </div>
-                        <button @click="currentPage = 'dashboard'; currentStep = 'progress'; submissionMode = 'today'; selectedDateForSubmission = null; checkTodayProgress()"
+                        <button
+                            @click="currentPage = 'dashboard'; currentStep = 'progress'; submissionMode = 'today'; selectedDateForSubmission = null; checkTodayProgress()"
                             class="bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transform transition-all duration-200 hover:scale-105">
                             Kembali ke Dashboard
                         </button>
@@ -1065,12 +1066,12 @@
                 autoSaveStatus: 'saved', // 'saving', 'saved', 'failed'
                 autoSaveMessage: '',
                 autoSaveTimeout: null,
-                
+
                 // Email verification
                 verificationCode: ['', '', '', '', '', ''],
                 resendCooldown: 0,
                 resendInterval: null,
-                
+
                 // Registration validation
                 agreedToDataAccuracy: false,
 
@@ -1232,7 +1233,7 @@
                                 this.currentStep = 'email_verification';
                                 this.userEmail = data.email;
                                 this.showMessage(data.message, 'success');
-                                
+
                                 // Auto-focus first input after a brief delay
                                 setTimeout(() => {
                                     const firstInput = document.getElementById('code-0');
@@ -1323,13 +1324,13 @@
                     return new Promise((resolve, reject) => {
                         const script = document.createElement('script');
                         script.src = 'https://upload-widget.cloudinary.com/global/all.js';
-                        
+
                         // Add timeout
                         const timeout = setTimeout(() => {
                             console.error('Cloudinary script loading timeout');
                             reject(new Error('Cloudinary script loading timeout'));
                         }, 10000); // 10 second timeout
-                        
+
                         script.onload = () => {
                             clearTimeout(timeout);
                             console.log('Cloudinary script loaded successfully');
@@ -1350,11 +1351,11 @@
                 async openCloudinaryWidget() {
                     // Set loading state
                     this.loading = true;
-                    
+
                     try {
                         // Try to load Cloudinary script if not available
                         await this.loadCloudinaryScript();
-                        
+
                         // Check if cloudinary is available
                         if (typeof cloudinary === 'undefined') {
                             console.error('Cloudinary script not loaded');
@@ -1372,14 +1373,14 @@
                     try {
                         // Debug configuration
                         console.log('Cloudinary config:', CLOUDINARY_CONFIG);
-                        
+
                         // Validate configuration
                         if (!CLOUDINARY_CONFIG.cloudName || !CLOUDINARY_CONFIG.uploadPreset) {
                             console.error('Missing Cloudinary configuration');
                             alert('Konfigurasi Cloudinary tidak lengkap. Silakan hubungi administrator.');
                             return;
                         }
-                        
+
                         const widget = cloudinary.createUploadWidget({
                             cloudName: CLOUDINARY_CONFIG.cloudName,
                             uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
@@ -1428,10 +1429,10 @@
                     });
 
                     widget.open();
-                    
+
                     // Clear loading state after widget opens
                     this.loading = false;
-                    
+
                     } catch (error) {
                         console.error('Error opening Cloudinary widget:', error);
                         alert('Terjadi kesalahan saat membuka widget upload. Silakan coba lagi.');
@@ -1481,7 +1482,7 @@
                             this.currentStep = 'result';
                             this.saveSession();
                             this.clearAutoSavedData();
-                            
+
                             // Reset backdate mode after successful submission
                             if (this.submissionMode === 'backdate') {
                                 this.selectedDateForSubmission = null;
@@ -1533,7 +1534,7 @@
 
                 async selectDate(date, day) {
                     this.selectedDate = date;
-                    
+
                     if (day.has_progress) {
                         // Load existing progress detail
                         try {
@@ -1557,16 +1558,16 @@
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
                     selectedDate.setHours(0, 0, 0, 0);
-                    
+
                     if (selectedDate > today) {
                         alert('Tidak dapat memilih tanggal yang akan datang');
                         return;
                     }
-                    
+
                     try {
                         const response = await fetch(`/api/progress-for-date?user_id=${this.currentUser.id}&date=${date}`);
                         const data = await response.json();
-                        
+
                         if (data.has_progress) {
                             const dateFormatted = new Date(date).toLocaleDateString('id-ID', {
                                 day: 'numeric',
@@ -1576,26 +1577,26 @@
                             alert(`Progress sudah disubmit untuk tanggal ${dateFormatted}`);
                             return;
                         }
-                        
+
                         this.selectedDateForSubmission = date;
                         this.submissionMode = 'backdate';
                         this.currentPage = 'dashboard';
-                        
+
                         // Clear form data
                         this.resetProgressForm();
-                        
+
                         // Show success message
                         const dateFormatted = new Date(date).toLocaleDateString('id-ID', {
                             day: 'numeric',
                             month: 'long',
                             year: 'numeric'
                         });
-                        
+
                         // Use timeout to ensure UI updates
                         setTimeout(() => {
                             alert(`Terpilih tanggal ${dateFormatted} untuk input laporan. Form siap untuk diisi.`);
                         }, 100);
-                        
+
                     } catch (error) {
                         console.error('Error checking date:', error);
                         alert('Terjadi kesalahan. Silakan coba lagi.');
@@ -1613,7 +1614,7 @@
                     this.selectedDateForSubmission = null;
                     this.submissionMode = 'today';
                     this.resetProgressForm();
-                    
+
                     // Check today's progress again to update UI
                     this.checkTodayProgress();
                 },
@@ -1753,16 +1754,16 @@
                 // Email verification methods
                 handleCodeInput(event, index) {
                     const value = event.target.value;
-                    
+
                     // Only allow numbers
                     if (!/^\d*$/.test(value)) {
                         event.target.value = '';
                         this.verificationCode[index] = '';
                         return;
                     }
-                    
+
                     this.verificationCode[index] = value;
-                    
+
                     // Auto-focus next input
                     if (value && index < 5) {
                         const nextInput = document.getElementById(`code-${index + 1}`);
@@ -1770,7 +1771,7 @@
                             nextInput.focus();
                         }
                     }
-                    
+
                     // Auto-submit when complete
                     if (this.isCodeComplete) {
                         setTimeout(() => {
@@ -1787,7 +1788,7 @@
                             prevInput.focus();
                         }
                     }
-                    
+
                     // Handle arrow keys
                     if (event.key === 'ArrowLeft' && index > 0) {
                         const prevInput = document.getElementById(`code-${index - 1}`);
@@ -1795,7 +1796,7 @@
                             prevInput.focus();
                         }
                     }
-                    
+
                     if (event.key === 'ArrowRight' && index < 5) {
                         const nextInput = document.getElementById(`code-${index + 1}`);
                         if (nextInput) {
@@ -1807,18 +1808,18 @@
                 handlePaste(event) {
                     event.preventDefault();
                     const pastedData = event.clipboardData.getData('text');
-                    
+
                     // Only process if pasted data is exactly 6 digits
                     if (/^\d{6}$/.test(pastedData)) {
                         const digits = pastedData.split('');
                         this.verificationCode = digits;
-                        
+
                         // Focus the last input
                         const lastInput = document.getElementById('code-5');
                         if (lastInput) {
                             lastInput.focus();
                         }
-                        
+
                         // Auto-submit
                         setTimeout(() => {
                             this.verifyEmail();
@@ -1828,11 +1829,11 @@
 
                 async verifyEmail() {
                     if (!this.isCodeComplete) return;
-                    
+
                     this.loading = true;
                     try {
                         const code = this.verificationCode.join('');
-                        
+
                         const response = await fetch('/api/verify-email', {
                             method: 'POST',
                             headers: {
@@ -1870,7 +1871,7 @@
 
                 async resendVerificationCode() {
                     if (this.resendCooldown > 0) return;
-                    
+
                     this.loading = true;
                     try {
                         const response = await fetch('/api/send-verification-code', {
