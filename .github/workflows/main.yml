@@ -1,0 +1,60 @@
+name: Wedding API deployment
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+
+      - name: Install Dependencies
+        run: |
+          composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+          composer dump-autoload
+          php artisan config:clear
+
+      - name: Copy Environment File
+        run: |
+          cp .env.example .env
+
+      - name: Deploy Production
+        if: github.ref == 'refs/heads/main'
+        run: |
+          # Deploy application files
+          sshpass -p 'c#)rgPMzNC2998@Vb4.M' rsync -avz --delete -e "ssh -o StrictHostKeyChecking=no" ./ root@147.93.30.80:/var/www/report-kpi-pmi/
+
+          # Update server
+          sshpass -p 'c#)rgPMzNC2998@Vb4.M' ssh -o StrictHostKeyChecking=no root@147.93.30.80 'cd /var/www/report-kpi-pmi && php artisan config:cache && php artisan route:cache && php artisan view:cache'
+
+      - name: Set Permissions
+        run: |
+          sshpass -p 'c#)rgPMzNC2998@Vb4.M' ssh -o StrictHostKeyChecking=no root@147.93.30.80 'chown -R www-data:www-data /var/www/report-kpi-pmi/storage /var/www/report-kpi-pmi/bootstrap/cache'
+          sshpass -p 'c#)rgPMzNC2998@Vb4.M' ssh -o StrictHostKeyChecking=no root@147.93.30.80 'find /var/www/report-kpi-pmi/storage/ -type d -exec chmod 775 {} \;'
+          sshpass -p 'c#)rgPMzNC2998@Vb4.M' ssh -o StrictHostKeyChecking=no root@147.93.30.80 'find /var/www/report-kpi-pmi/bootstrap/cache/ -type d -exec chmod 775 {} \;'
+          sshpass -p 'c#)rgPMzNC2998@Vb4.M' ssh -o StrictHostKeyChecking=no root@147.93.30.80 'find /var/www/report-kpi-pmi/storage/ -type f -exec chmod 664 {} \;'
+          sshpass -p 'c#)rgPMzNC2998@Vb4.M' ssh -o StrictHostKeyChecking=no root@147.93.30.80 << 'EOF'
+            cd /var/www/report-kpi-pmi
+
+          # Laravel Commands
+            php8.2 artisan key:generate --ansi
+            php8.2 artisan migrate --force
+            php8.2 artisan optimize:clear
+            php8.2 artisan storage:link
+            php8.2 artisan config:clear
+            php8.2 artisan cache:clear
+            php8.2 artisan route:clear
+            php8.2 artisan view:clear
+          EOF
