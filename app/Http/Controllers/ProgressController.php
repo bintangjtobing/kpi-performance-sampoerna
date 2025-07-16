@@ -12,6 +12,7 @@ use App\Mail\DailyProgressSubmitted;
 use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
+use App\Services\FonnteService;
 
 class ProgressController extends Controller
 {
@@ -96,6 +97,7 @@ class ProgressController extends Controller
                 'items' => 'required|string',
                 'photo_urls' => 'nullable|array',
                 'photo_urls.*' => 'url',
+                'progress_date' => 'nullable|date|before_or_equal:today', // Allow custom date but not future dates
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors()->all();
@@ -106,16 +108,27 @@ class ProgressController extends Controller
         }
 
         $user = User::find($request->user_id);
-        $today = now()->format('Y-m-d');
+        
+        // Use custom date if provided, otherwise use today
+        $progressDate = $request->progress_date ?? now()->format('Y-m-d');
+        
+        // Additional validation: ensure the date is not in the future
+        if (strtotime($progressDate) > strtotime(now()->format('Y-m-d'))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tidak dapat mengirim laporan untuk tanggal yang akan datang'
+            ], 422);
+        }
 
         $existingProgress = DailyProgress::where('user_id', $user->id)
-            ->where('progress_date', $today)
+            ->where('progress_date', $progressDate)
             ->first();
 
         if ($existingProgress) {
+            $dateFormatted = \Carbon\Carbon::parse($progressDate)->format('d F Y');
             return response()->json([
                 'success' => false,
-                'message' => 'Progress sudah disubmit untuk hari ini'
+                'message' => "Progress sudah disubmit untuk tanggal {$dateFormatted}"
             ], 422);
         }
 
@@ -139,7 +152,7 @@ class ProgressController extends Controller
 
         $dailyProgress = DailyProgress::create([
             'user_id' => $user->id,
-            'progress_date' => $today,
+            'progress_date' => $progressDate,
             'overall_percentage' => 0,
             'photos' => $photos,
         ]);
@@ -188,6 +201,15 @@ class ProgressController extends Controller
         } catch (\Exception $e) {
             // Log error but don't fail the request
             error_log("Email sending failed: " . $e->getMessage());
+        }
+
+        // Send WhatsApp notification
+        try {
+            $fonnteService = new FonnteService();
+            $fonnteService->sendDailyReport($user, $dailyProgress, $overallPercentage);
+        } catch (\Exception $e) {
+            // Log error but don't fail the request
+            error_log("WhatsApp sending failed: " . $e->getMessage());
         }
 
         return response()->json([
@@ -349,6 +371,29 @@ class ProgressController extends Controller
         return response()->json([
             'has_progress' => !!$progress,
             'progress' => $progress
+        ]);
+    }
+
+    public function getProgressForDate(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'date' => 'required|date'
+        ]);
+
+        $user = User::find($request->user_id);
+        $date = $request->date;
+
+        $progress = DailyProgress::where('user_id', $user->id)
+            ->where('progress_date', $date)
+            ->with('progressItems')
+            ->first();
+
+        return response()->json([
+            'has_progress' => !!$progress,
+            'progress' => $progress,
+            'date' => $date,
+            'can_submit' => strtotime($date) <= strtotime(now()->format('Y-m-d'))
         ]);
     }
 }

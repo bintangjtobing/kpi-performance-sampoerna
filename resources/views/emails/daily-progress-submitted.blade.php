@@ -263,9 +263,9 @@
                 <h3>📈 Detail KPI Hari Ini</h3>
                 @foreach($dailyProgress->progressItems as $item)
                 <div class="progress-item">
-                    <h4>{{ $item->kpi_item }}</h4>
-                    <p><strong>Target:</strong> {{ number_format($item->target) }} {{ $item->unit }} |
-                        <strong>Aktual:</strong> {{ number_format($item->actual) }} {{ $item->unit }}
+                    <h4>{{ $item->item_name }}</h4>
+                    <p><strong>Target:</strong> {{ number_format($item->target_value) }} |
+                        <strong>Aktual:</strong> {{ number_format($item->actual_value) }}
                     </p>
                     <div class="progress-bar">
                         <div class="progress-bar-fill" style="width: {{ min($item->percentage, 100) }}%"></div>
@@ -278,14 +278,19 @@
 
             <div class="feedback-message">
                 <h3>💬 Pesan Feedback</h3>
-                <p>{{ $message }}</p>
+                <p>{{ $feedbackMessage ?? 'Tidak ada pesan feedback' }}</p>
             </div>
 
-            @if($pdfPath && file_exists($pdfPath))
+            @if(isset($pdfPath) && $pdfPath && file_exists($pdfPath))
             <div class="attachment-info">
                 <h3>📎 Lampiran</h3>
                 <p>Laporan harian Anda dalam format PDF telah dilampirkan pada email ini. Anda dapat mengunduh dan
                     menyimpannya sebagai dokumentasi.</p>
+            </div>
+            @else
+            <div class="attachment-info">
+                <h3>📎 Lampiran</h3>
+                <p>Laporan harian Anda sedang diproses. PDF akan tersedia setelah sistem selesai memproses data.</p>
             </div>
             @endif
         </div>
@@ -297,7 +302,7 @@
             </p>
             <p style="margin-top: 10px;">
                 Jika ada pertanyaan, hubungi tim support di
-                <a href="mailto:support@sampoerna.com">support@sampoerna.com</a>
+                <a href="mailto:hello@bintangtobing.com">hello@bintangtobing.com</a>
             </p>
         </div>
     </div>

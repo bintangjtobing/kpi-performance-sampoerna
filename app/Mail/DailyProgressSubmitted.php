@@ -18,56 +18,43 @@ class DailyProgressSubmitted extends Mailable
     public $user;
     public $dailyProgress;
     public $overallPercentage;
-    public $message;
+    public $feedbackMessage;
     public $pdfPath;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(User $user, DailyProgress $dailyProgress, $overallPercentage, $message, $pdfPath = null)
+    public function __construct(User $user, DailyProgress $dailyProgress, $overallPercentage, $feedbackMessage, $pdfPath = null)
     {
         $this->user = $user;
         $this->dailyProgress = $dailyProgress;
         $this->overallPercentage = $overallPercentage;
-        $this->message = $message;
+        $this->feedbackMessage = $feedbackMessage;
         $this->pdfPath = $pdfPath;
     }
 
     /**
-     * Get the message envelope.
+     * Build the message.
      */
-    public function envelope(): Envelope
+    public function build()
     {
-        return new Envelope(
-            subject: 'Laporan Harian KPI Berhasil Dikirim - ' . now()->format('d/m/Y'),
-        );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'emails.daily-progress-submitted',
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        $attachments = [];
-        
+        $mail = $this->subject('Laporan Harian KPI Berhasil Dikirim - ' . now()->format('d/m/Y'))
+                     ->view('emails.daily-progress-submitted')
+                     ->with([
+                         'user' => $this->user,
+                         'dailyProgress' => $this->dailyProgress,
+                         'overallPercentage' => $this->overallPercentage,
+                         'feedbackMessage' => $this->feedbackMessage,
+                         'pdfPath' => $this->pdfPath,
+                     ]);
+                     
         if ($this->pdfPath && file_exists($this->pdfPath)) {
-            $attachments[] = Attachment::fromPath($this->pdfPath)
-                ->as('Laporan_Harian_KPI_' . now()->format('d-m-Y') . '.pdf')
-                ->withMime('application/pdf');
+            $mail->attach($this->pdfPath, [
+                'as' => 'Laporan_Harian_KPI_' . now()->format('d-m-Y') . '.pdf',
+                'mime' => 'application/pdf',
+            ]);
         }
         
-        return $attachments;
+        return $mail;
     }
 }

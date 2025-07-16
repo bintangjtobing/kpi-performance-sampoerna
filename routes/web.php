@@ -32,6 +32,7 @@ Route::post('/api/login', [UserController::class, 'login']);
 Route::get('/api/progress-items', [ProgressController::class, 'getProgressItems']);
 Route::post('/api/submit-progress', [ProgressController::class, 'submitProgress']);
 Route::get('/api/today-progress', [ProgressController::class, 'getTodayProgress']);
+Route::get('/api/progress-for-date', [ProgressController::class, 'getProgressForDate']);
 
 Route::get('/api/target', [TargetController::class, 'getTarget']);
 Route::post('/api/update-target', [TargetController::class, 'updateTarget']);

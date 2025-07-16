@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\EmailVerification;
 use App\Mail\EmailVerificationCode;
 use Illuminate\Support\Facades\Mail;
+use App\Services\FonnteService;
 
 class UserController extends Controller
 {
@@ -54,24 +55,57 @@ class UserController extends Controller
         // Generate and send verification code
         $verification = EmailVerification::generateCode($request->email);
         
+        $emailSent = false;
+        $whatsappSent = false;
+        
+        // Send email verification
         try {
             Mail::to($request->email)->send(new EmailVerificationCode(
                 $verification->code,
                 $request->name,
                 15 // 15 minutes expiry
             ));
+            $emailSent = true;
         } catch (\Exception $e) {
+            error_log("Email verification failed: " . $e->getMessage());
+        }
+        
+        // Send WhatsApp verification
+        try {
+            $fonnteService = new FonnteService();
+            $fonnteService->sendVerificationCode(
+                $request->whatsapp,
+                $verification->code,
+                $request->name
+            );
+            $whatsappSent = true;
+        } catch (\Exception $e) {
+            error_log("WhatsApp verification failed: " . $e->getMessage());
+        }
+        
+        if (!$emailSent && !$whatsappSent) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengirim email verifikasi. Silakan coba lagi.'
+                'message' => 'Gagal mengirim kode verifikasi. Silakan coba lagi.'
             ], 500);
+        }
+        
+        $message = 'Kode verifikasi telah dikirim ke ';
+        if ($emailSent && $whatsappSent) {
+            $message .= 'email dan WhatsApp Anda.';
+        } elseif ($emailSent) {
+            $message .= 'email Anda.';
+        } else {
+            $message .= 'WhatsApp Anda.';
         }
 
         return response()->json([
             'success' => true,
             'step' => 'email_verification',
-            'message' => 'Kode verifikasi telah dikirim ke email Anda.',
-            'email' => $request->email
+            'message' => $message,
+            'email' => $request->email,
+            'email_sent' => $emailSent,
+            'whatsapp_sent' => $whatsappSent
         ]);
     }
 
@@ -92,22 +126,55 @@ class UserController extends Controller
         // Generate new verification code
         $verification = EmailVerification::generateCode($request->email);
         
+        $emailSent = false;
+        $whatsappSent = false;
+        
+        // Send email verification
         try {
             Mail::to($request->email)->send(new EmailVerificationCode(
                 $verification->code,
                 $registrationData['name'],
                 15
             ));
+            $emailSent = true;
         } catch (\Exception $e) {
+            error_log("Email verification failed: " . $e->getMessage());
+        }
+        
+        // Send WhatsApp verification
+        try {
+            $fonnteService = new FonnteService();
+            $fonnteService->sendVerificationCode(
+                $registrationData['whatsapp'],
+                $verification->code,
+                $registrationData['name']
+            );
+            $whatsappSent = true;
+        } catch (\Exception $e) {
+            error_log("WhatsApp verification failed: " . $e->getMessage());
+        }
+        
+        if (!$emailSent && !$whatsappSent) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengirim email verifikasi. Silakan coba lagi.'
+                'message' => 'Gagal mengirim kode verifikasi. Silakan coba lagi.'
             ], 500);
         }
-
+        
+        $message = 'Kode verifikasi telah dikirim ke ';
+        if ($emailSent && $whatsappSent) {
+            $message .= 'email dan WhatsApp Anda.';
+        } elseif ($emailSent) {
+            $message .= 'email Anda.';
+        } else {
+            $message .= 'WhatsApp Anda.';
+        }
+        
         return response()->json([
             'success' => true,
-            'message' => 'Kode verifikasi baru telah dikirim ke email Anda.'
+            'message' => $message,
+            'email_sent' => $emailSent,
+            'whatsapp_sent' => $whatsappSent
         ]);
     }
 

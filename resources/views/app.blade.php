@@ -12,7 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+    <script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript" onerror="console.error('Failed to load Cloudinary script')"></script>
     <style>
         .calendar-grid {
             display: grid;
@@ -46,6 +46,21 @@
 
         .calendar-day.has-progress:hover {
             background-color: #bfdbfe;
+        }
+
+        .calendar-day.submittable {
+            background-color: #f0fff4;
+            border-left: 4px solid #16a34a;
+        }
+
+        .calendar-day.submittable:hover {
+            background-color: #dcfce7;
+        }
+
+        .calendar-day.future {
+            background-color: #f3f4f6;
+            color: #9ca3af;
+            cursor: not-allowed;
         }
 
         .calendar-day.selected {
@@ -335,7 +350,7 @@
                             <form @submit.prevent="login()">
                                 <div class="mb-6">
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                                    <input type="password" x-model="userPassword"
+                                    <input type="password" x-model="userPassword" x-ref="passwordInput"
                                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         placeholder="Masukkan password Anda" required>
                                 </div>
@@ -389,7 +404,32 @@
                                         placeholder="Masukkan password" required>
                                     <p class="text-xs text-gray-500 mt-1">Minimal 6 karakter</p>
                                 </div>
-                                <button type="submit" :disabled="loading"
+                                
+                                <!-- Warning dan Agreement -->
+                                <div class="mb-6">
+                                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                                        <div class="flex items-start">
+                                            <i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5 mr-2"></i>
+                                            <div class="text-sm text-yellow-800">
+                                                <p class="font-medium mb-2">Perhatian Penting!</p>
+                                                <ul class="space-y-1 text-xs">
+                                                    <li>• <strong>Email:</strong> Pastikan email yang Anda masukkan <strong>benar dan aktif</strong>, karena akan digunakan untuk verifikasi akun dan menerima laporan harian.</li>
+                                                    <li>• <strong>WhatsApp:</strong> Pastikan nomor WhatsApp yang Anda masukkan <strong>benar dan aktif</strong>, karena akan digunakan untuk informasi penting ke nomor tersebut.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex items-start">
+                                        <input type="checkbox" id="dataAccuracy" x-model="agreedToDataAccuracy"
+                                            class="mt-1 mr-3 h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded">
+                                        <label for="dataAccuracy" class="text-sm text-gray-700 cursor-pointer">
+                                            Saya telah <strong>memeriksa dan memastikan</strong> bahwa email dan nomor WhatsApp yang saya masukkan adalah <strong>benar dan aktif</strong>. Saya memahami bahwa data ini akan digunakan untuk komunikasi penting.
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" :disabled="loading || !agreedToDataAccuracy"
                                     class="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 transform transition-all duration-200 hover:scale-105 disabled:opacity-50">
                                     <span x-show="!loading">Daftar</span>
                                     <span x-show="loading">
@@ -410,7 +450,7 @@
                             <div class="text-center mb-8">
                                 <i class="fas fa-envelope-open text-blue-600 text-6xl mb-4"></i>
                                 <h2 class="text-2xl font-bold text-gray-900">Verifikasi Email</h2>
-                                <p class="text-gray-600 mt-2">Masukkan kode verifikasi yang dikirim ke email Anda</p>
+                                <p class="text-gray-600 mt-2">Masukkan kode verifikasi yang dikirim ke email dan WhatsApp Anda</p>
                                 <p class="text-sm text-blue-600 mt-2 font-medium" x-text="userEmail"></p>
                             </div>
                             
@@ -462,7 +502,7 @@
                                                maxlength="1" 
                                                id="code-5">
                                     </div>
-                                    <p class="text-xs text-gray-500 mt-3 text-center">Masukkan 6 digit kode verifikasi</p>
+                                    <p class="text-xs text-gray-500 mt-3 text-center">Masukkan 6 digit kode verifikasi yang dikirim ke email dan WhatsApp Anda</p>
                                 </div>
 
                                 <button type="submit" :disabled="loading || !isCodeComplete"
@@ -475,7 +515,7 @@
                             </form>
 
                             <div class="mt-6 text-center">
-                                <p class="text-sm text-gray-500 mb-3">Tidak menerima kode?</p>
+                                <p class="text-sm text-gray-500 mb-3">Tidak menerima kode di email atau WhatsApp?</p>
                                 <button @click="resendVerificationCode()" :disabled="loading || resendCooldown > 0"
                                     class="text-blue-600 hover:text-blue-800 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
                                     <span x-show="resendCooldown === 0">Kirim Ulang Kode</span>
@@ -489,7 +529,7 @@
                 <!-- Dashboard Page -->
                 <div x-show="currentStep === 'progress' && currentPage === 'dashboard'" class="space-y-6">
                     <!-- Progress Check -->
-                    <div x-show="todayProgress" class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                    <div x-show="todayProgress && submissionMode !== 'backdate'" class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
                         <div class="flex items-center">
                             <i class="fas fa-check-circle text-yellow-600 text-xl mr-3"></i>
                             <div>
@@ -501,7 +541,7 @@
                     </div>
 
                     <!-- Progress Form -->
-                    <div x-show="!todayProgress">
+                    <div x-show="!todayProgress || submissionMode === 'backdate'">
                         <div class="bg-white rounded-xl shadow-lg p-8">
                             <div class="text-center mb-8">
                                 <i class="fas fa-chart-bar text-blue-600 text-4xl mb-4"></i>
@@ -528,6 +568,27 @@
                                 <div class="mt-2 text-xs text-gray-500">
                                     <i class="fas fa-info-circle mr-1"></i>
                                     Setiap yang Anda tulis akan tersimpan secara otomatis
+                                </div>
+                            </div>
+
+                            <!-- Backdate Submission Indicator -->
+                            <div x-show="submissionMode === 'backdate'" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
+                                        <div>
+                                            <p class="text-sm font-medium text-blue-900">Mode Input Tanggal Mundur</p>
+                                            <p class="text-xs text-blue-700">
+                                                Laporan akan diinput untuk tanggal: 
+                                                <span class="font-semibold" x-text="selectedDateForSubmission ? new Date(selectedDateForSubmission).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : ''"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="cancelBackdateSubmission()" 
+                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                        <i class="fas fa-times mr-1"></i>
+                                        Batal
+                                    </button>
                                 </div>
                             </div>
 
@@ -562,10 +623,12 @@
                                             Foto Dokumentasi
                                         </h3>
                                         <div class="mb-4">
-                                            <button type="button" @click="openCloudinaryWidget()"
-                                                class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2">
-                                                <i class="fas fa-cloud-upload-alt"></i>
-                                                <span>Upload Foto dengan Cloudinary</span>
+                                            <button type="button" @click="openCloudinaryWidget()" :disabled="loading"
+                                                class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2 disabled:opacity-50">
+                                                <i class="fas fa-cloud-upload-alt" x-show="!loading"></i>
+                                                <i class="fas fa-spinner fa-spin" x-show="loading"></i>
+                                                <span x-show="!loading">Upload Foto dengan Cloudinary</span>
+                                                <span x-show="loading">Memuat Widget...</span>
                                             </button>
                                             <p class="text-xs text-gray-500 mt-1">Upload langsung ke cloud - tanpa
                                                 batasan ukuran</p>
@@ -642,11 +705,24 @@
                             <div class="calendar-grid rounded-lg overflow-hidden">
                                 <template x-for="(day, date) in calendarData" :key="date">
                                     <div class="calendar-day"
-                                        :class="{'has-progress': day.has_progress, 'selected': selectedDate === date}"
+                                        :class="{
+                                            'has-progress': day.has_progress, 
+                                            'selected': selectedDate === date,
+                                            'submittable': !day.has_progress && new Date(date) <= new Date(),
+                                            'future': new Date(date) > new Date()
+                                        }"
                                         @click="selectDate(date, day)">
                                         <div class="text-sm font-medium" x-text="day.date"></div>
                                         <div x-show="day.has_progress" class="text-xs text-blue-200 mt-1"
                                             x-text="Math.round(day.percentage) + '%'"></div>
+                                        
+                                        <!-- Submit Button for dates without progress -->
+                                        <div x-show="!day.has_progress && new Date(date) <= new Date()" class="mt-1">
+                                            <button @click.stop="selectDateForSubmission(date)" 
+                                                    class="text-xs bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-colors">
+                                                Input
+                                            </button>
+                                        </div>
                                     </div>
                                 </template>
                             </div>
@@ -930,7 +1006,7 @@
                         <div class="bg-blue-50 rounded-lg p-4 mb-6">
                             <p class="text-gray-700" x-text="resultMessage"></p>
                         </div>
-                        <button @click="currentPage = 'dashboard'; currentStep = 'progress'; checkTodayProgress()"
+                        <button @click="currentPage = 'dashboard'; currentStep = 'progress'; submissionMode = 'today'; selectedDateForSubmission = null; checkTodayProgress()"
                             class="bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transform transition-all duration-200 hover:scale-105">
                             Kembali ke Dashboard
                         </button>
@@ -941,11 +1017,31 @@
     </div>
 
     <script>
+        // Global error handling
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+            // Suppress errors from external scripts like Rollbar
+            if (event.filename && event.filename.includes('rollbar')) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            // Suppress Rollbar and other external script errors
+            if (event.reason && event.reason.stack && event.reason.stack.includes('rollbar')) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
         // Cloudinary configuration
         const CLOUDINARY_CONFIG = {
             cloudName: '{{ env("CLOUDINARY_CLOUD_NAME") }}',
             uploadPreset: '{{ env("CLOUDINARY_UPLOAD_PRESET") }}',
-            folder: '{{ env("CLOUDINARY_FOLDER", "kpi-performance-sampoerna") }}'
+            folder: '{{ env("CLOUDINARY_FOLDER", "kpi-performance-reports") }}'
         };
 
         function kpiApp() {
@@ -974,6 +1070,9 @@
                 verificationCode: ['', '', '', '', '', ''],
                 resendCooldown: 0,
                 resendInterval: null,
+                
+                // Registration validation
+                agreedToDataAccuracy: false,
 
                 // History
                 availableMonths: [],
@@ -982,6 +1081,8 @@
                 calendarData: {},
                 selectedDate: '',
                 selectedDateProgress: null,
+                selectedDateForSubmission: null, // For backdate submission
+                submissionMode: 'today', // 'today' or 'backdate'
 
                 // Reports
                 availableReports: [],
@@ -1003,6 +1104,8 @@
                     this.$nextTick(() => {
                         if (this.currentStep === 'name') {
                             this.$refs.nameInput?.focus();
+                        } else if (this.currentStep === 'password') {
+                            this.$refs.passwordInput?.focus();
                         }
                     });
                 },
@@ -1212,11 +1315,75 @@
                     }
                 },
 
-                openCloudinaryWidget() {
-                    const widget = cloudinary.createUploadWidget({
-                        cloudName: CLOUDINARY_CONFIG.cloudName,
-                        uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
-                        folder: CLOUDINARY_CONFIG.folder,
+                async loadCloudinaryScript() {
+                    if (typeof cloudinary !== 'undefined') {
+                        return Promise.resolve();
+                    }
+
+                    return new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = 'https://upload-widget.cloudinary.com/global/all.js';
+                        
+                        // Add timeout
+                        const timeout = setTimeout(() => {
+                            console.error('Cloudinary script loading timeout');
+                            reject(new Error('Cloudinary script loading timeout'));
+                        }, 10000); // 10 second timeout
+                        
+                        script.onload = () => {
+                            clearTimeout(timeout);
+                            console.log('Cloudinary script loaded successfully');
+                            // Wait a bit for cloudinary to initialize
+                            setTimeout(() => {
+                                resolve();
+                            }, 100);
+                        };
+                        script.onerror = () => {
+                            clearTimeout(timeout);
+                            console.error('Failed to load Cloudinary script');
+                            reject(new Error('Failed to load Cloudinary script'));
+                        };
+                        document.head.appendChild(script);
+                    });
+                },
+
+                async openCloudinaryWidget() {
+                    // Set loading state
+                    this.loading = true;
+                    
+                    try {
+                        // Try to load Cloudinary script if not available
+                        await this.loadCloudinaryScript();
+                        
+                        // Check if cloudinary is available
+                        if (typeof cloudinary === 'undefined') {
+                            console.error('Cloudinary script not loaded');
+                            alert('Cloudinary widget tidak dapat dimuat. Silakan refresh halaman.');
+                            this.loading = false;
+                            return;
+                        }
+                    } catch (error) {
+                        console.error('Error loading Cloudinary script:', error);
+                        alert('Tidak dapat memuat Cloudinary widget. Silakan coba lagi atau refresh halaman.');
+                        this.loading = false;
+                        return;
+                    }
+
+                    try {
+                        // Debug configuration
+                        console.log('Cloudinary config:', CLOUDINARY_CONFIG);
+                        
+                        // Validate configuration
+                        if (!CLOUDINARY_CONFIG.cloudName || !CLOUDINARY_CONFIG.uploadPreset) {
+                            console.error('Missing Cloudinary configuration');
+                            alert('Konfigurasi Cloudinary tidak lengkap. Silakan hubungi administrator.');
+                            return;
+                        }
+                        
+                        const widget = cloudinary.createUploadWidget({
+                            cloudName: CLOUDINARY_CONFIG.cloudName,
+                            uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
+                            folder: CLOUDINARY_CONFIG.folder,
                         resourceType: 'image',
                         multiple: true,
                         clientAllowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
@@ -1261,6 +1428,15 @@
                     });
 
                     widget.open();
+                    
+                    // Clear loading state after widget opens
+                    this.loading = false;
+                    
+                    } catch (error) {
+                        console.error('Error opening Cloudinary widget:', error);
+                        alert('Terjadi kesalahan saat membuka widget upload. Silakan coba lagi.');
+                        this.loading = false;
+                    }
                 },
 
                 removePhoto(index) {
@@ -1278,6 +1454,11 @@
                             items: JSON.stringify(this.progressData),
                             photo_urls: photoUrls
                         };
+
+                        // Add progress_date if in backdate mode
+                        if (this.submissionMode === 'backdate' && this.selectedDateForSubmission) {
+                            requestData.progress_date = this.selectedDateForSubmission;
+                        }
 
                         const response = await fetch('/api/submit-progress', {
                             method: 'POST',
@@ -1300,6 +1481,12 @@
                             this.currentStep = 'result';
                             this.saveSession();
                             this.clearAutoSavedData();
+                            
+                            // Reset backdate mode after successful submission
+                            if (this.submissionMode === 'backdate') {
+                                this.selectedDateForSubmission = null;
+                                this.submissionMode = 'today';
+                            }
                         } else {
                             alert(data.message || 'Terjadi kesalahan saat menyimpan progress');
                         }
@@ -1345,18 +1532,90 @@
                 },
 
                 async selectDate(date, day) {
-                    if (!day.has_progress) return;
-
                     this.selectedDate = date;
-                    try {
-                        const response = await fetch(`/api/history/detail?user_id=${this.currentUser.id}&date=${date}`);
-                        const data = await response.json();
-                        console.log('Progress detail response:', data);
-                        console.log('Photos data:', data.progress?.photos);
-                        this.selectedDateProgress = data;
-                    } catch (error) {
-                        console.error('Error loading progress detail:', error);
+                    
+                    if (day.has_progress) {
+                        // Load existing progress detail
+                        try {
+                            const response = await fetch(`/api/history/detail?user_id=${this.currentUser.id}&date=${date}`);
+                            const data = await response.json();
+                            console.log('Progress detail response:', data);
+                            console.log('Photos data:', data.progress?.photos);
+                            this.selectedDateProgress = data;
+                        } catch (error) {
+                            console.error('Error loading progress detail:', error);
+                        }
+                    } else {
+                        // Clear progress detail for empty days
+                        this.selectedDateProgress = null;
                     }
+                },
+
+                async selectDateForSubmission(date) {
+                    // Check if date is in the future
+                    const selectedDate = new Date(date);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    selectedDate.setHours(0, 0, 0, 0);
+                    
+                    if (selectedDate > today) {
+                        alert('Tidak dapat memilih tanggal yang akan datang');
+                        return;
+                    }
+                    
+                    try {
+                        const response = await fetch(`/api/progress-for-date?user_id=${this.currentUser.id}&date=${date}`);
+                        const data = await response.json();
+                        
+                        if (data.has_progress) {
+                            const dateFormatted = new Date(date).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric'
+                            });
+                            alert(`Progress sudah disubmit untuk tanggal ${dateFormatted}`);
+                            return;
+                        }
+                        
+                        this.selectedDateForSubmission = date;
+                        this.submissionMode = 'backdate';
+                        this.currentPage = 'dashboard';
+                        
+                        // Clear form data
+                        this.resetProgressForm();
+                        
+                        // Show success message
+                        const dateFormatted = new Date(date).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        });
+                        
+                        // Use timeout to ensure UI updates
+                        setTimeout(() => {
+                            alert(`Terpilih tanggal ${dateFormatted} untuk input laporan. Form siap untuk diisi.`);
+                        }, 100);
+                        
+                    } catch (error) {
+                        console.error('Error checking date:', error);
+                        alert('Terjadi kesalahan. Silakan coba lagi.');
+                    }
+                },
+
+                resetProgressForm() {
+                    this.progressData = {};
+                    this.photos = [];
+                    this.overallPercentage = 0;
+                    this.resultMessage = '';
+                },
+
+                cancelBackdateSubmission() {
+                    this.selectedDateForSubmission = null;
+                    this.submissionMode = 'today';
+                    this.resetProgressForm();
+                    
+                    // Check today's progress again to update UI
+                    this.checkTodayProgress();
                 },
 
                 async previewDailyReport() {

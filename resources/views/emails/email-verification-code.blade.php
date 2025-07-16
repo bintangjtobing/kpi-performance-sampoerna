@@ -288,7 +288,7 @@
             </p>
             <p style="margin-top: 15px;">
                 Butuh bantuan? Hubungi tim support di
-                <a href="mailto:support@sampoerna.com">support@sampoerna.com</a>
+                <a href="mailto:hello@bintangtobing.com">hello@bintangtobing.com</a>
             </p>
         </div>
     </div>
